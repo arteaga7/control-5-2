@@ -1,0 +1,4 @@
+pandas
+openpyxl
+extract-msg
+requests
