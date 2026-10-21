@@ -1,18 +1,21 @@
-# bot2.py:
+"""
+bot2.py: Check if there is evidence in the folder '1. CHI Report + Request' and
+check if an email was sent to all the people responsible in the 'Responsable' column
+of the CHI_Report
+"""
 
 from pathlib import Path
 import argparse
 from modules.chi_report import read_xlsm, compare_col_content, save_excel
 from modules.mail import read_msg, send_mail
-from datetime import datetime
-import pandas as pd
+
 
 PROJECT_DIR = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
 parser.add_argument("--month", default="03 March")
 parser.add_argument("--unilever_path", type=Path, default=PROJECT_DIR)
 args = parser.parse_args()
-MONTH = "04 April"  # args.month
+MONTH = "03 March"  # args.month
 UNILEVER_PATH = Path(r"C:\SharePoints")  # args.unilever_path
 
 FOLDER_PATH = (
@@ -22,12 +25,12 @@ FOLDER_PATH = (
 )
 COLS_CHI_REPORT = ["Responsable", "Approver", "Justificación"]
 CHI_REPORT_FOLDER = Path(FOLDER_PATH) / MONTH / "1. CHI Report + Request"
-JUSTIFICATION_FOLDER = Path(FOLDER_PATH) / MONTH / "2. Justifications"
-APPOVAL_FOLDER = Path(FOLDER_PATH) / MONTH / "3. Approvals"
-date = datetime.now().strftime('%Y%m%d_%H%M%S')
-FINAL_REPORT = "Report_local_" + MONTH + f"_{date}" + ".xlsx"
-FINAL_REPORT_FOLDER = Path(FOLDER_PATH) / MONTH / FINAL_REPORT
-OUTPUT_FILE = "folder_content" + f"_{date}" + ".xlsx"
+# JUSTIFICATION_FOLDER = Path(FOLDER_PATH) / MONTH / "2. Justifications"
+# APPOVAL_FOLDER = Path(FOLDER_PATH) / MONTH / "3. Approvals"
+# date = datetime.now().strftime('%Y%m%d_%H%M%S')
+# FINAL_REPORT = "Report_local_" + MONTH + f"_{date}" + ".xlsx"
+# FINAL_REPORT_FOLDER = Path(FOLDER_PATH) / MONTH / FINAL_REPORT
+# OUTPUT_FILE = "folder_content" + f"_{date}" + ".xlsx"
 
 body_missing_evidence = """Hola Equipo, 
  

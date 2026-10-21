@@ -1,4 +1,4 @@
-# bot1.py: All folders are created
+# bot1.py: Create all folders
 from pathlib import Path
 import argparse
 from modules.create_folders import create_folder_structure
