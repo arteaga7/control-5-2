@@ -4,8 +4,8 @@ bot4.py: 4
 
 from pathlib import Path
 import argparse
-from modules.chi_report import read_xlsm, compare_col_content, save_excel
-from modules.mail import read_msg, send_mail
+from modules4.chi_report import read_xlsm, compare_col_content, save_excel
+from modules4.mail import read_msg, send_mail
 
 
 PROJECT_DIR = Path(__file__).resolve().parent

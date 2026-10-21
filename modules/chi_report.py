@@ -52,11 +52,3 @@ def compare_col_content(df: pd.DataFrame, col: str, new_col: str,
     df = df.copy()
     df[new_col] = df[col].isin(mails)
     return df
-
-
-def save_excel(df: pd.DataFrame, output_file: str, hoja: str = "Hoja1"):
-    """Save dataframe in an Excel file"""
-    with pd.ExcelWriter(output_file, engine="openpyxl", mode="w") as writer:
-        df.to_excel(writer, sheet_name=hoja, index=False)
-    print(f"Dataframe guardado: {output_file}")
-    return

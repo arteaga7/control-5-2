@@ -6,7 +6,7 @@ of the CHI_Report
 
 from pathlib import Path
 import argparse
-from modules.chi_report import read_xlsm, compare_col_content, save_excel
+from modules.chi_report import read_xlsm, compare_col_content
 from modules.mail import read_msg, send_mail
 
 
@@ -25,12 +25,6 @@ FOLDER_PATH = (
 )
 COLS_CHI_REPORT = ["Responsable", "Approver", "Justificación"]
 CHI_REPORT_FOLDER = Path(FOLDER_PATH) / MONTH / "1. CHI Report + Request"
-# JUSTIFICATION_FOLDER = Path(FOLDER_PATH) / MONTH / "2. Justifications"
-# APPOVAL_FOLDER = Path(FOLDER_PATH) / MONTH / "3. Approvals"
-# date = datetime.now().strftime('%Y%m%d_%H%M%S')
-# FINAL_REPORT = "Report_local_" + MONTH + f"_{date}" + ".xlsx"
-# FINAL_REPORT_FOLDER = Path(FOLDER_PATH) / MONTH / FINAL_REPORT
-# OUTPUT_FILE = "folder_content" + f"_{date}" + ".xlsx"
 
 body_missing_evidence = """Hola Equipo, 
  
