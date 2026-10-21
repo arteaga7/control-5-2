@@ -9,3 +9,4 @@ def create_folder_structure(base_path, folders, subfolders):
         for subfolder in subfolders:
             path = base_path / folder / subfolder
             path.mkdir(parents=True, exist_ok=True)
+    print("Carpetas faltantes creadas!")

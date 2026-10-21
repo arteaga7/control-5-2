@@ -10,6 +10,7 @@ control-5-2/
 ├── venv/                       # Virtual enviroment
 └── requirements.txt
 └── bot1.py
+└── run1.bat
 ```
 ## ✨ Details
 Confidential.
@@ -36,6 +37,6 @@ uv venv venv
 source venv/bin/activate
 uv pip install -r requirements.txt
 ```
-3. Run "run.bat", add the corresponding month and full path of the SharePoint folder.
+3. Run "run1.bat", add the corresponding full path of the SharePoint folder.
 
-![alt text](image.png)
+![alt text](./img/bot1.png)
