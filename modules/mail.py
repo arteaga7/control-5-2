@@ -1,4 +1,4 @@
-# mail_funcs.py
+# mail.py
 from pathlib import Path
 import extract_msg
 from modules.chi_report import get_filenames
@@ -25,8 +25,6 @@ def read_msg(folder_path: Path, n_mails: int | None = None,
     msg_names = get_filenames(folder_path, extension)
     if n_mails is not None:
         msg_names = msg_names[:n_mails]
-    else:
-        return
 
     addresses = []
     for msg_name in msg_names:
@@ -57,7 +55,7 @@ def send_mail(body_mail: str) -> None:
         # "sharepoint_path": "/Shared Documents/CEX SILVER/CASA LEY/",
         # "file_name": "Flujo_Casa_Ley.xlsx",
         "email": "Antonio.Arteaga@Unilever.com",
-        "cc": "",
+        "cc": "Antonio.Arteaga@Unilever.com",
         "subject": "Pruebita BOT",
         "body": body_mail
     })
