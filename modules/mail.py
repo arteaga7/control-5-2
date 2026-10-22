@@ -62,3 +62,9 @@ def send_mail(body_mail: str) -> None:
     response = requests.post(URL, data=json_file,  headers=headers)
     print(response.status_code)
     print(response.text)
+
+
+def notify(mensaje_log: str, correo_html: str):
+    """Imprime un mensaje de log y envía el correo correspondiente."""
+    print(mensaje_log)
+    send_mail(correo_html)

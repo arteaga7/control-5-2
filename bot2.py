@@ -7,7 +7,7 @@ of the CHI_Report
 from pathlib import Path
 import argparse
 from modules.chi_report import read_xlsm, compare_col_content
-from modules.mail import read_msg, send_mail
+from modules.mail import read_msg, send_mail, notify
 
 
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -26,49 +26,36 @@ FOLDER_PATH = (
 COLS_CHI_REPORT = ["Responsable", "Approver", "Justificación"]
 CHI_REPORT_FOLDER = Path(FOLDER_PATH) / MONTH / "1. CHI Report + Request"
 
+# --------Mail content ------------
 missing_report = """Hola Equipo,<br><br> 
- 
 Por favor subir el CHI Report.<br><br>
-
 Saludos."""
 missing_evidence = """Hola Equipo,<br><br>
- 
 Por favor subir la evidencia faltante.<br><br>
-
 Saludos."""
-
 mismatch_sent_template = """Hola Equipo,<br><br>
- 
 Por favor mandar un correo complementario a las personas que faltaron:<br><br>
 {df}
 <br><br>
 Saludos."""
-
 bot2_success = """Hola Equipo,<br><br>
- 
 La evidencia se recibio con exito.<br><br>
-
 Saludos."""
-
-
-def notify(mensaje_log: str, correo_html: str):
-    """Imprime un mensaje de log y envía el correo correspondiente."""
-    print(mensaje_log)
-    send_mail(correo_html)
+# ----------------------------------
 
 
 def main():
     df = read_xlsm(CHI_REPORT_FOLDER, COLS_CHI_REPORT)
     if df.empty:
         notify(
-            "No hay CHI_Report.\nSe envia el sig. correo...\n"+missing_report, missing_report)
+            "No hay CHI_Report.\nSe envia el sig. correo...\n\n"+missing_report, missing_report)
         return
 
     mailto_chi_report = read_msg(folder_path=CHI_REPORT_FOLDER, n_mails=1,
                                  extension="*.msg", property="to")
 
     if len(mailto_chi_report) == 0:
-        notify("No hay correo de evidencia para evaluar.\nSe envia el sig. correo...\n"
+        notify("No hay correo de evidencia para evaluar.\nSe envia el sig. correo...\n\n"
                + missing_evidence, missing_evidence)
         return
 
@@ -86,12 +73,12 @@ def main():
             mismatch_sent_pandas = mismatch_sent_template.format(
                 df=df_not_sent.to_string(index=False))
             print(
-                "\nSe envia el sig. correo...\n", mismatch_sent_pandas)
+                "\nSe envia el sig. correo...\n\n", mismatch_sent_pandas)
             send_mail(mismatch_sent)
             return
 
-        print("Ejecución correcta, el correo se envio a todos los responsables.")
-        send_mail(bot2_success)
+        notify("Ejecución correcta. Se envia el sig. correo...\n\n"
+               + bot2_success, bot2_success)
 
 
 if __name__ == "__main__":
