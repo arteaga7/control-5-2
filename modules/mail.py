@@ -55,7 +55,7 @@ def send_mail(body_mail: str) -> None:
         # "sharepoint_path": "/Shared Documents/CEX SILVER/CASA LEY/",
         # "file_name": "Flujo_Casa_Ley.xlsx",
         "email": "Antonio.Arteaga@Unilever.com",
-        "cc": "Antonio.Arteaga@Unilever.com",
+        "cc": "",
         "subject": "Pruebita BOT",
         "body": body_mail
     })

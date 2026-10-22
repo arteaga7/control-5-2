@@ -25,6 +25,7 @@ FOLDER_PATH = (
 COLS_CHI_REPORT = ["Responsable", "Approver", "Justificación"]
 CHI_REPORT_FOLDER = Path(FOLDER_PATH) / MONTH / "1. CHI Report + Request"
 JUSTIFICATION_FOLDER = Path(FOLDER_PATH) / MONTH / "2. Justifications"
+APPOVAL_FOLDER = Path(FOLDER_PATH) / MONTH / "3. Approvals"
 
 
 def main():
@@ -47,9 +48,7 @@ def main():
 
     print("Personas que respondieron (mandaron mail de justificacion):")
     print(df[["Responsable", "Feedback"]], "\n")
-
-    df_feedback = df[df["Feedback"] == True]
-    approvals(df_feedback)
+    approvals(df, APPOVAL_FOLDER, "Approver", "Aprobacion")
 
     df_no_feedback = df[df["Feedback"] == False]
     if not df_no_feedback.empty:

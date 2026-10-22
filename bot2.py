@@ -26,42 +26,72 @@ FOLDER_PATH = (
 COLS_CHI_REPORT = ["Responsable", "Approver", "Justificación"]
 CHI_REPORT_FOLDER = Path(FOLDER_PATH) / MONTH / "1. CHI Report + Request"
 
-body_missing_evidence = """Hola Equipo, 
+missing_report = """Hola Equipo,<br><br> 
  
-Por favor subir las evidencias faltantes.
+Por favor subir el CHI Report.<br><br>
+
+Saludos."""
+missing_evidence = """Hola Equipo,<br><br>
+ 
+Por favor subir la evidencia faltante.<br><br>
 
 Saludos."""
 
-body_mismatch_sent = """Hola Equipo, 
+mismatch_sent_template = """Hola Equipo,<br><br>
  
-Por favor mandar un correo complementario a las personas que faltaron.
+Por favor mandar un correo complementario a las personas que faltaron:<br><br>
+{df}
+<br><br>
+Saludos."""
+
+bot2_success = """Hola Equipo,<br><br>
+ 
+La evidencia se recibio con exito.<br><br>
 
 Saludos."""
+
+
+def notify(mensaje_log: str, correo_html: str):
+    """Imprime un mensaje de log y envía el correo correspondiente."""
+    print(mensaje_log)
+    send_mail(correo_html)
 
 
 def main():
     df = read_xlsm(CHI_REPORT_FOLDER, COLS_CHI_REPORT)
+    if df.empty:
+        notify(
+            "No hay CHI_Report.\nSe envia el sig. correo...\n"+missing_report, missing_report)
+        return
+
     mailto_chi_report = read_msg(folder_path=CHI_REPORT_FOLDER, n_mails=1,
                                  extension="*.msg", property="to")
 
-    if df.empty or len(mailto_chi_report) == 0:
-        print("No hay edivencia para evaluar,"
-              "se mandara un correo a las personas correspondientes.")
-        # send_mail(body_missing_evidence)
+    if len(mailto_chi_report) == 0:
+        notify("No hay correo de evidencia para evaluar.\nSe envia el sig. correo...\n"
+               + missing_evidence, missing_evidence)
         return
 
     if len(mailto_chi_report) > 0:
         df = compare_col_content(df=df, col="Responsable",
                                  new_col="Enviado", mails=mailto_chi_report)
+        print("Personas responsables:")
+        print(df[["Responsable", "Enviado"]], "\n")
 
         if not df["Enviado"].all():
-            df_filtered = df[(df["Enviado"] == False)]
-            print(df_filtered[["Responsable", "Enviado"]], "\n")
-            print("Faltaron personas al mandar el correo, "
-                  "se mandara un correo a las personas correspondientes.")
-            # send_mail(body_mismatch_sent)
+            df_not_sent = df[(df["Enviado"] == False)]
+            df_not_sent = df_not_sent[["Responsable", "Enviado"]]
+            mismatch_sent = mismatch_sent_template.format(
+                df=df_not_sent.to_html(index=False))
+            mismatch_sent_pandas = mismatch_sent_template.format(
+                df=df_not_sent.to_string(index=False))
+            print(
+                "\nSe envia el sig. correo...\n", mismatch_sent_pandas)
+            send_mail(mismatch_sent)
             return
+
         print("Ejecución correcta, el correo se envio a todos los responsables.")
+        send_mail(bot2_success)
 
 
 if __name__ == "__main__":
