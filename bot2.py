@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--month", default="03 March")
 parser.add_argument("--unilever_path", type=Path, default=PROJECT_DIR)
 args = parser.parse_args()
-MONTH = "03 March"  # args.month
+MONTH = "05 May"  # args.month
 UNILEVER_PATH = Path(r"C:\SharePoints")  # args.unilever_path
 
 FOLDER_PATH = (
@@ -28,7 +28,7 @@ CHI_REPORT_FOLDER = Path(FOLDER_PATH) / MONTH / "1. CHI Report + Request"
 
 # --------Mail content ------------
 missing_report = """Hola Equipo,<br><br> 
-Por favor subir el CHI Report.<br><br>
+Por favor subir el CHI Report con la estructura adecuada.<br><br>
 Saludos."""
 missing_evidence = """Hola Equipo,<br><br>
 Por favor subir la evidencia faltante.<br><br>
@@ -46,13 +46,13 @@ Saludos."""
 
 def main():
     df = read_xlsm(CHI_REPORT_FOLDER, COLS_CHI_REPORT)
+    mailto_chi_report = read_msg(folder_path=CHI_REPORT_FOLDER, n_mails=1,
+                                 extension="*.msg", property="to")
+
     if df.empty:
         notify(
             "No hay CHI_Report.\nSe envia el sig. correo...\n\n"+missing_report, missing_report)
         return
-
-    mailto_chi_report = read_msg(folder_path=CHI_REPORT_FOLDER, n_mails=1,
-                                 extension="*.msg", property="to")
 
     if len(mailto_chi_report) == 0:
         notify("No hay correo de evidencia para evaluar.\nSe envia el sig. correo...\n\n"

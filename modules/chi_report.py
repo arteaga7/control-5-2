@@ -12,6 +12,7 @@ def get_filenames(folder_path: Path, extension: str) -> list[str]:
 def read_chi_report(file_path: str | Path, cols: list[str]) -> pd.DataFrame:
     """Lee el archivo '.xlsm' en la hoja 'Reporte' y extrae las columnas
     "Responsable", "Approver" y "Justificación"."""
+    df = pd.DataFrame()
     if not file_path.is_file():
         raise FileNotFoundError(
             f"No se encontró el CHI Report: {file_path}"
@@ -24,10 +25,10 @@ def read_chi_report(file_path: str | Path, cols: list[str]) -> pd.DataFrame:
             engine="openpyxl"
         )
     except ValueError as error:
-        raise ValueError(
+        print(
             "No se encontro la hoja o las columnas esperadas. "
             f"Columnas requeridas: {cols}"
-        ) from error
+        )
     return df
 
 
