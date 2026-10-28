@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--month", default="06 June")
 parser.add_argument("--unilever_path", type=Path, default=PROJECT_DIR)
 args = parser.parse_args()
-MONTH = "08 August"  # args.month
+MONTH = "09 September"  # args.month
 UNILEVER_PATH = Path(r"C:\SharePoints")  # args.unilever_path
 
 FOLDER_PATH = (
@@ -30,7 +30,8 @@ APPOVAL_FOLDER = Path(FOLDER_PATH) / MONTH / "3. Approvals"
 def main():
     df = read_xlsm(CHI_REPORT_FOLDER, COLS_CHI_REPORT)
     if df.empty:
-        print("No hay CHI_Report. Ejecute bot2 para mandar correo correspondiente.")
+        print("No hay CHI_Report. Ejecute bot2 para mandar correo correspondiente" +
+              "o si hizo modificaciones recientemente, espere unos minutos y vuelva a ejecutar.")
         return
     from_justifications = read_msg(folder_path=JUSTIFICATION_FOLDER,
                                    extension="*.msg", property="sender")
@@ -42,7 +43,7 @@ def main():
         print(df[["Responsable", "Feedback"]], "\n")
 
     else:
-        print("Verificar bandeja de entrada de todos los responsables.")
+        print("Verificar bandeja de entrada para justificaciones.")
         check_inbox(df, col="Responsable")
         return
 
