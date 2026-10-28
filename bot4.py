@@ -10,7 +10,7 @@ from modules4.inbox import check_inbox
 
 PROJECT_DIR = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
-parser.add_argument("--month", default="06 June")
+parser.add_argument("--month", default="09 September")
 parser.add_argument("--unilever_path", type=Path, default=PROJECT_DIR)
 args = parser.parse_args()
 MONTH = "09 September"  # args.month
@@ -25,6 +25,7 @@ COLS_CHI_REPORT = ["Responsable", "Approver", "Justificación"]
 CHI_REPORT_FOLDER = Path(FOLDER_PATH) / MONTH / "1. CHI Report + Request"
 JUSTIFICATION_FOLDER = Path(FOLDER_PATH) / MONTH / "2. Justifications"
 APPOVAL_FOLDER = Path(FOLDER_PATH) / MONTH / "3. Approvals"
+WORKING_DIR = Path(FOLDER_PATH) / MONTH
 
 
 def main():
@@ -44,33 +45,33 @@ def main():
 
     else:
         print("Verificar bandeja de entrada para justificaciones.")
-        check_inbox(df, col="Responsable")
+        check_inbox(df, "Responsable", WORKING_DIR)
         return
 
     df_feed = df[df["Feedback"] == True]
     df_no_feed = df[df["Feedback"] == False]
 
     if not df_no_feed.empty:
-        check_inbox(df_no_feed, col="Responsable")
+        check_inbox(df_no_feed, "Responsable", WORKING_DIR)
 
-    if not df_feed.empty:
-        from_approver = read_msg(folder_path=APPOVAL_FOLDER,
-                                 extension="*.msg", property="sender")
-        if len(from_approver) > 0:
-            df_feed = compare_col_content(df=df_feed, col="Approver",
-                                          new_col="Aprobacion", mails=from_approver)
-            df_aprove = df_feed[df_feed["Aprobacion"] == True]
-            df_no_aprove = df_feed[df_feed["Aprobacion"] == False]
-            if not df_no_aprove.empty:
-                check_inbox(df_no_aprove, col="Approver")
-            if not df_aprove.empty:
-                print("\nControl correcto para:\n", df_aprove[[
-                      "Responsable", "Approver", "Aprobacion"]])
+    from_approver = read_msg(folder_path=APPOVAL_FOLDER,
+                             extension="*.msg", property="sender")
+    if len(from_approver) > 0:
+        df_feed = compare_col_content(df=df_feed, col="Approver",
+                                      new_col="Aprobacion", mails=from_approver)
+        df_aprove = df_feed[df_feed["Aprobacion"] == True]
+        df_no_aprove = df_feed[df_feed["Aprobacion"] == False]
 
-        else:
-            print("Verificar bandeja de entrada de todos los aprovadores.")
-            check_inbox(df_feed, col="Approver")
-            return
+        if not df_no_aprove.empty:
+            check_inbox(df_no_aprove, "Approver", WORKING_DIR)
+        if not df_aprove.empty:
+            print("\nControl correcto para:\n", df_aprove[[
+                "Responsable", "Approver", "Aprobacion"]])
+
+    else:
+        print("Verificar bandeja de entrada de todos los aprovadores.")
+        check_inbox(df_feed, "Approver", WORKING_DIR)
+        return
 
 
 if __name__ == "__main__":
