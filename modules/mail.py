@@ -6,6 +6,7 @@ import re
 import html
 import requests
 import json
+import pandas as pd
 
 
 def extract_emails(texto: str) -> list[str]:
@@ -68,3 +69,11 @@ def notify(mensaje_log: str, correo_html: str):
     """Imprime un mensaje de log y envía el correo correspondiente."""
     print(mensaje_log)
     send_mail(correo_html)
+
+
+def print_mail(mensaje: str, df: pd.DataFrame, template: str):
+    """Print and send Dataframe with html format"""
+    print(f"\n{mensaje}\n", df)
+    success_mail = template.format(
+        df=df.to_html(index=False))
+    send_mail(success_mail)

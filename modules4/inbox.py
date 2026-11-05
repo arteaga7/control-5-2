@@ -17,14 +17,7 @@ def check_inbox(df: pd.DataFrame, col: str, working_dir: Path) -> list[str]:
         folder_path = working_dir / "2. Justifications"
     print(
         f"\nSe debe verificar la bandeja de entrada, en el folder {folder_path} para:")
-    print(df[[col]])
-    if inbox_evidence > 0:
-        print("\nMandar correo para subir evidencia en SharePoint.")
-    else:
-        df_ans = df[df["Feedback"] == True]
-        df_no_ans = df[df["Feedback"] == False]
-        print("\nMandar correo para pedir subir evidencia para df_ans:\n", df_ans)
-        print("\nMandar correo para escalar para df_no_ans:\n", df_no_ans)
+    print(df[[col]].to_dict())
     return []
 
 

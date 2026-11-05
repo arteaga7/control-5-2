@@ -5,7 +5,7 @@ bot4.py: Use folders "06 June", "07 July", ...
 from pathlib import Path
 import argparse
 from modules.chi_report import read_xlsm, compare_col_content
-from modules.mail import read_msg
+from modules.mail import read_msg, send_mail, print_mail
 from modules4.inbox import check_inbox
 
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--month", default="09 September")
 parser.add_argument("--unilever_path", type=Path, default=PROJECT_DIR)
 args = parser.parse_args()
-MONTH = "09 September"  # args.month
+MONTH = "07 July"  # args.month
 UNILEVER_PATH = Path(r"C:\SharePoints")  # args.unilever_path
 
 FOLDER_PATH = (
@@ -26,13 +26,20 @@ CHI_REPORT_FOLDER = Path(FOLDER_PATH) / MONTH / "1. CHI Report + Request"
 JUSTIFICATION_FOLDER = Path(FOLDER_PATH) / MONTH / "2. Justifications"
 APPOVAL_FOLDER = Path(FOLDER_PATH) / MONTH / "3. Approvals"
 WORKING_DIR = Path(FOLDER_PATH) / MONTH
+# --------Mail content ------------
+success_template = """Hola Equipo,<br><br>
+Control 5.2 correcto para:<br><br>
+{df}
+<br><br>
+Saludos."""
+# ----------------------------------
 
 
 def main():
     df = read_xlsm(CHI_REPORT_FOLDER, COLS_CHI_REPORT)
     if df.empty:
         print("No hay CHI_Report. Ejecute bot2 para mandar correo correspondiente" +
-              "o si hizo modificaciones recientemente, espere unos minutos y vuelva a ejecutar.")
+              "o si hizo modificaciones recientemente, espere unos minutos y vuelva a intentar.")
         return
     from_justifications = read_msg(folder_path=JUSTIFICATION_FOLDER,
                                    extension="*.msg", property="sender")
@@ -65,8 +72,8 @@ def main():
         if not df_no_aprove.empty:
             check_inbox(df_no_aprove, "Approver", WORKING_DIR)
         if not df_aprove.empty:
-            print("\nControl correcto para:\n", df_aprove[[
-                "Responsable", "Approver", "Aprobacion"]])
+            df_success = df_aprove[["Responsable", "Approver", "Aprobacion"]]
+            print_mail("Control correcto para:", df_success, success_template)
 
     else:
         print("Verificar bandeja de entrada de todos los aprovadores.")

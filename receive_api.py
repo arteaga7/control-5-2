@@ -6,10 +6,11 @@ import secrets
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Union
-
 from fastapi import FastAPI, Header, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field
 
+#uvicorn receive_api:app --host 0.0.0.0 --port 8000
+#http://localhost:8000/docs
 # --- Configuración ---
 API_KEY = os.getenv("INBOX_API_KEY", "mi-clave-secreta")
 DATA_DIR = Path(os.getenv("INBOX_DATA_DIR", "data/emails"))
@@ -50,16 +51,27 @@ def safe_name(text: str) -> str:
 
 
 def save_email(email: Email) -> str:
+    # Decodificar primero, para no crear carpetas si algo viene mal
+    decoded = []
+    for att in email.attachments:
+        if att.contentBytes:
+            try:
+                decoded.append((att.name, base64.b64decode(
+                    att.contentBytes, validate=True)))
+            except (ValueError, base64.binascii.Error):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"El adjunto '{att.name}' no tiene contentBytes en base64 válido",
+                )
+
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     folder = DATA_DIR / f"{stamp}_{safe_name(email.subject or 'sin_asunto')}"
     folder.mkdir(parents=True, exist_ok=True)
 
     saved = []
-    for att in email.attachments:
-        if att.contentBytes:
-            (folder / safe_name(att.name)
-             ).write_bytes(base64.b64decode(att.contentBytes))
-            saved.append(att.name)
+    for name, content in decoded:
+        (folder / safe_name(name)).write_bytes(content)
+        saved.append(name)
 
     meta = email.model_dump(by_alias=True, exclude={"attachments"})
     meta["attachments_saved"] = saved
