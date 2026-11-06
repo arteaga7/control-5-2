@@ -2,8 +2,13 @@
 
 from pathlib import Path
 import requests
+import json
+import os
+from dotenv import load_dotenv
 import pandas as pd
-from modules.mail import send_mail
+
+ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(ENV_PATH)
 
 
 def check_inbox(df: pd.DataFrame, col: str, working_dir: Path) -> list[str]:
@@ -21,14 +26,27 @@ def check_inbox(df: pd.DataFrame, col: str, working_dir: Path) -> list[str]:
     return []
 
 
-def post_inbox():
-    """Post API Rest to trgger PowerAutomate to obtain the emails"""
-    sas = """https://defaultf66fae025d36495bbfe078a6ff9f8e.6e.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/10/workflows/dbcaa29207554d9da81374caf52b19ec/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=a8bqoi84j1nFwh1bUZ1_fTqQp-RW-FlBAVlAktm6c0M"""
-    Headers = {"Content-Type": "application/json"}
-    response = requests.post(sas, headers=Headers, verify=False)
+def post_inbox(df: pd.DataFrame, url=None):
+    """Post API Rest to trigger PowerAutomate and send a DataFrame"""
+    print("Aqui vamos\n")
+    url = url or os.getenv("PA_INBOX_URL")
+    if not url:
+        raise RuntimeError(f"No se encontró PA_INBOX_URL en {ENV_PATH}")
 
-    if response.status_code == 202:
+    # to_json maneja NaN -> null y fechas -> ISO; json.loads lo vuelve lista de dicts
+    registros = json.loads(df.to_json(orient="records", date_format="iso"))
+    print(registros)
+    payload = {
+        "data": registros
+    }
+
+    # json= pone el Content-Type solo
+    response = requests.post(url, json=payload, timeout=60, verify=False)
+
+    if response.status_code in (200, 202):
         print("Exitoso")
     else:
         raise Exception(
-            f"Power Automate fallo al checar la bandeja de entrada:  {response.status_code}")
+            f"Power Automate fallo al checar la bandeja de entrada: "
+            f"{response.status_code} - {response.text}"
+        )

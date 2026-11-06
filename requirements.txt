@@ -2,5 +2,4 @@ pandas
 openpyxl
 extract-msg
 requests
-fastapi
-uvicorn
+python-dotenv

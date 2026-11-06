@@ -6,7 +6,7 @@ from pathlib import Path
 import argparse
 from modules.chi_report import read_xlsm, compare_col_content
 from modules.mail import read_msg, send_mail, print_mail
-from modules4.inbox import check_inbox
+from modules4.inbox import post_inbox2, check_inbox
 
 PROJECT_DIR = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
@@ -52,14 +52,16 @@ def main():
 
     else:
         print("Verificar bandeja de entrada para justificaciones.")
-        check_inbox(df, "Responsable", WORKING_DIR)
+        post_inbox2(df)
+        # check_inbox(df, "Responsable", WORKING_DIR)
         return
 
     df_feed = df[df["Feedback"] == True]
     df_no_feed = df[df["Feedback"] == False]
 
     if not df_no_feed.empty:
-        check_inbox(df_no_feed, "Responsable", WORKING_DIR)
+        post_inbox2(df_no_feed)
+        # check_inbox(df_no_feed, "Responsable", WORKING_DIR)
 
     from_approver = read_msg(folder_path=APPOVAL_FOLDER,
                              extension="*.msg", property="sender")
@@ -70,13 +72,15 @@ def main():
         df_no_aprove = df_feed[df_feed["Aprobacion"] == False]
 
         if not df_no_aprove.empty:
-            check_inbox(df_no_aprove, "Approver", WORKING_DIR)
+            post_inbox2(df_no_aprove)
+            # check_inbox(df_no_aprove, "Approver", WORKING_DIR)
         if not df_aprove.empty:
             df_success = df_aprove[["Responsable", "Approver", "Aprobacion"]]
-            print_mail("Control correcto para:", df_success, success_template)
+            # print_mail("Control correcto para:", df_success, success_template)
 
     else:
         print("Verificar bandeja de entrada de todos los aprovadores.")
+        post_inbox2(df_feed)
         check_inbox(df_feed, "Approver", WORKING_DIR)
         return
 
