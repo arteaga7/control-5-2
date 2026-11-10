@@ -6,15 +6,16 @@ from pathlib import Path
 import argparse
 from modules.chi_report import read_xlsm, compare_col_content
 from modules.mail import read_msg, send_mail, print_mail
-from modules4.inbox import post_inbox2, check_inbox
+from modules4.inbox import post_inbox
 
 PROJECT_DIR = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
 parser.add_argument("--month", default="09 September")
 parser.add_argument("--unilever_path", type=Path, default=PROJECT_DIR)
 args = parser.parse_args()
-MONTH = "07 July"  # args.month
+MONTH = "09 September"  # args.month
 UNILEVER_PATH = Path(r"C:\SharePoints")  # args.unilever_path
+CAPGEMINI_FOLDER_PATH = UNILEVER_PATH / "SKY_CE - emails_capgemini"
 
 FOLDER_PATH = (
     UNILEVER_PATH / "Unilever"
@@ -52,15 +53,15 @@ def main():
 
     else:
         print("Verificar bandeja de entrada para justificaciones.")
-        post_inbox2(df)
-        # check_inbox(df, "Responsable", WORKING_DIR)
+        post_inbox()
+        # check_inbox_sharepoint("Responsable", WORKING_DIR)
         return
 
     df_feed = df[df["Feedback"] == True]
     df_no_feed = df[df["Feedback"] == False]
 
     if not df_no_feed.empty:
-        post_inbox2(df_no_feed)
+        post_inbox(df_no_feed)
         # check_inbox(df_no_feed, "Responsable", WORKING_DIR)
 
     from_approver = read_msg(folder_path=APPOVAL_FOLDER,

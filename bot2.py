@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--month", default="03 March")
 parser.add_argument("--unilever_path", type=Path, default=PROJECT_DIR)
 args = parser.parse_args()
-MONTH = "05 May"  # args.month
+MONTH = "09 September"  # args.month
 UNILEVER_PATH = Path(r"C:\SharePoints")  # args.unilever_path
 
 FOLDER_PATH = (

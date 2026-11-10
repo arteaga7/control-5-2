@@ -9,7 +9,7 @@ load_dotenv(ENV_PATH)
 
 def post_inbox(url=None):
     """Post API Rest to trigger PowerAutomate"""
-    url = url or os.getenv("INBOX_URL")
+    url = os.getenv("INBOX_URL")
     if not url:
         raise RuntimeError(f"No se encontró INBOX_URL en {ENV_PATH}")
 
