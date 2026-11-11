@@ -5,17 +5,57 @@ import requests
 import time
 import os
 from dotenv import load_dotenv
-import pandas as pd
+import html
+from email import policy
+from email.parser import BytesParser
+from email.utils import getaddresses
 
 ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(ENV_PATH)
+# firma de un .msg binario de Outlook
+OLE_MAGIC = b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1"
 
 
-def check_inbox_sharepoint(col: str, working_dir: Path) -> list[str]:
-    """
-    yhyh."""
+def check_inbox_sharepoint(work_dir: str | Path) -> list[str]:
+    """Obtain properties from, to, subject from files in the capgemini sharepoint."""
 
     return
+
+
+def extraer_from(path: str | Path) -> str:
+    """Extrae el correo del remitente (From) de un correo MIME (.eml), tenga o no extensión."""
+    data = Path(path).read_bytes()
+
+    if data.startswith(OLE_MAGIC):
+        raise ValueError(
+            f"{path} es un .msg binario de Outlook; usa extract_msg")
+
+    # Por si el archivo trae &lt; &gt; en lugar de < >
+    data = html.unescape(data.decode("utf-8", errors="ignore")).encode("utf-8")
+    msg = BytesParser(policy=policy.default).parsebytes(data)
+
+    valores = [str(v) for v in msg.get_all("From", [])]
+    correos = [email for _, email in getaddresses(valores) if email]
+
+    return correos[0] if correos else ""
+
+
+def extraer_from_carpeta(folder_path: str | Path) -> list[str]:
+    """Regresa la lista de remitentes (From) de todos los archivos de la carpeta."""
+    remitentes = []
+
+    for archivo in sorted(Path(folder_path).iterdir()):
+        # Omite subcarpetas y archivos ocultos/temporales de sincronización (.xxxx)
+        if not archivo.is_file() or archivo.name.startswith((".", "~$")):
+            continue
+        try:
+            frm = extraer_from(archivo)
+            if frm:
+                remitentes.append(frm)
+        except Exception as e:
+            print(f"[ERROR] {archivo.name}: {e}")
+
+    return list(dict.fromkeys(remitentes))
 
 
 def post_inbox():
@@ -34,5 +74,5 @@ def post_inbox():
             f"Power Automate fallo al checar la bandeja de entrada: "
             f"{response.status_code} - {response.text}"
         )
-    print("Esperamos unos segundos a que el flujo se ejecute...")
-    time.sleep(2)
+    print("Esperamos unos segundos a que el flujo de Power Automate se ejecute...")
+    time.sleep(3)
